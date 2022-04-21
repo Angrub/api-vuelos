@@ -1,0 +1,12 @@
+node_modules
+LICENSE 
+README.md
+.gitignore
+.git
+*.log
+.dockerignore
+docker-compose.override.yml
+docker-compose.yml
+docker-images
+.env
+.env-example

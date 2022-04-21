@@ -1,1 +1,5 @@
 node_modules
+bundle
+*.log
+docker-compose.override.yml
+.env
