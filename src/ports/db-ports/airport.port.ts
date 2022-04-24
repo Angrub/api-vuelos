@@ -6,9 +6,9 @@ interface AirportDBPort {
     findAirport: (name: string) => Promise<AirportObject | undefined>;
     findAll: () => Promise<AirportObject[]>;
     createAircraft: (airportId: string, data: Aircraft) => Promise<AircraftObject | undefined>;
-    findAircraft: (id: string) => Promise<AircraftObject | undefined>; 
-    findAllAircraft: () => Promise<AircraftObject[]>; 
-    deleteAircraft: (id: string) => Promise<AircraftObject | undefined>;
+    findAircraft: (airportId: string, id: string) => Promise<AircraftObject | undefined>; 
+    findAllAircraft: (airportId: string) => Promise<AircraftObject[] | undefined>; 
+    deleteAircraft: (airportId: string, id: string) => Promise<AircraftObject | undefined>;
 }
 
 export { AirportDBPort }

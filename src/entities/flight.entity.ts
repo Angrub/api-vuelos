@@ -1,19 +1,23 @@
 import { Types } from 'mongoose';
+import { Aircraft } from './sub_entities/aircraft.entity';
 
-interface Flight {
+interface FlightCreateParams {
     name: string;
-    aircraft: Types.ObjectId;
+    aircraft: Aircraft;
     departing: Date;
     returning: Date;
-    to: Types.ObjectId;
+    _from_id: Types.ObjectId;
+    _to_id: Types.ObjectId;
+}
+
+interface Flight extends FlightCreateParams {
+    active: boolean;
+    _subscriptions_id: Types.ObjectId;
+    _baggages_id: Types.ObjectId;
 }
 
 interface FlightObject extends Flight {
     _id: Types.ObjectId;
-    active: boolean;
-    subscriptions: Types.ObjectId;
-    baggages: Types.ObjectId;
-    from: Types.ObjectId;
 }
 
-export { Flight, FlightObject }
+export { Flight, FlightObject, FlightCreateParams }

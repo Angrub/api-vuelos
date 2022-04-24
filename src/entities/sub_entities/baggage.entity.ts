@@ -1,9 +1,13 @@
 import { Types } from 'mongoose';
 
 interface Baggage {
-    _id: Types.ObjectId;
-    owner: Types.ObjectId;
+    _owner_id: Types.ObjectId;
     weight?: number;
 }
 
-export { Baggage }
+interface BaggageObject extends Baggage {
+    _id: Types.ObjectId;
+
+}
+
+export { Baggage, BaggageObject }

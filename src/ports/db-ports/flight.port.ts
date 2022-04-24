@@ -1,23 +1,34 @@
-import { Flight, FlightObject } from "../../entities/flight.entity";
-import { Baggage } from "../../entities/sub_entities/baggage.entity";
-import { Ticket } from "../../entities/sub_entities/ticket.entity";
+import { FlightCreateParams, FlightObject } from "../../entities/flight.entity";
+import { BaggageObject } from "../../entities/sub_entities/baggage.entity";
+import { TicketObject } from "../../entities/sub_entities/ticket.entity";
 
 interface FlightDBPort {
-    createFlight: (flightData: Flight) => Promise<FlightObject | undefined>;
+    createFlight: (flightData: FlightCreateParams) => Promise<FlightObject>;
     findFlight: (id: string) => Promise<FlightObject | undefined>;
     findAll: (query: queryFindAll) => Promise<FlightObject[]>;
-    updateFlightStatus: (id: string, status: boolean) => Promise<Flight | undefined>;
-    createTicket: (flightId: string, userId: string) => Promise<Ticket>;
-    deleteTicket: (flightId: string, findTicket: findTicketParam) => Promise<Ticket | undefined>;
-    createBaggage: (weight?: number) => Promise<Baggage>;
-    deleteBaggage: (id: string) => Promise<Baggage | undefined>
+    updateFlightStatus: (id: string, status: boolean) => Promise<FlightObject | undefined>;
+    createTicket: (flightId: string, userId: string) => Promise<TicketObject | undefined>;
+    deleteTicket: (flightId: string, findTicket: findTicketParam) => Promise<TicketObject | undefined>;
+    createBaggage: (weight?: number) => Promise<BaggageObject | undefined>;
+    deleteBaggage: (id: string) => Promise<BaggageObject | undefined>
 }
 
 type queryFindAll = {
     offset: number;
-    date: Date | undefined;
-    name: string | undefined;
+    withDatetime?: filterWithDate;
+    withoutDatetime?: filterWithCurrentDate;
+    name?: string;
 }
+
+type filterWithDate = { date: string, filter: 'current' | 'after' | 'before'};
+type filterWithCurrentDate = 'last_day' | 'last_week' | 'last_month' | 'last_year';
+
 type findTicketParam = {userId: string} | {ticketId: string};
 
-export { FlightDBPort }
+export { 
+    FlightDBPort, 
+    queryFindAll, 
+    findTicketParam ,
+    filterWithDate,
+    filterWithCurrentDate
+}

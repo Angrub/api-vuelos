@@ -2,9 +2,12 @@ import { Types } from 'mongoose';
 import { Ticket } from './sub_entities/ticket.entity';
 
 interface Subscriptions {
-    _id: Types.ObjectId;
-    flight_id: Types.ObjectId;
-    tickets: Types.ArraySubdocument<Ticket>;
+    _flight_id: Types.ObjectId;
+    tickets: Ticket[];
 }
 
-export { Subscriptions };
+interface SubscriptionsObject extends Subscriptions {
+    _id: Types.ObjectId;
+}
+
+export { Subscriptions, SubscriptionsObject };

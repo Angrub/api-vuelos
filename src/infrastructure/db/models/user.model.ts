@@ -1,6 +1,7 @@
 import { findParams, UserDBPort } from "../../../ports/db-ports/user.port";
-import { Schema, model, Model } from "mongoose";
+import { model, Model } from "mongoose";
 import { User, UserObject } from "../../../entities/user.entity";
+import { UserSchema } from "./schemas/user.schema";
 
 class UserModel implements UserDBPort {
     model: Model<User>
@@ -10,26 +11,7 @@ class UserModel implements UserDBPort {
     }
 
     init() {
-        const userSchema = new Schema<User>({
-            username: {
-                type: String,
-                required: true
-            },
-            email: {
-                type: String,
-                required: true
-            },
-            password: {
-                type: String,
-                required: true
-            },
-            scope: {
-                type: String,
-                required: true
-            },
-        });
-        
-        return model<User>('Users', userSchema);
+        return model<User>('Users', UserSchema);
     }
 
     async createUser(userData: User) {

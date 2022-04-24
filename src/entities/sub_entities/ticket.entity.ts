@@ -1,10 +1,13 @@
 import { Types } from 'mongoose';
 
 interface Ticket {
-    _id: Types.ObjectId;
-    owner: Types.ObjectId;
+    _owner_id: string;
     cost: number;
     seat: number;
 }
 
-export { Ticket }
+interface TicketObject extends Ticket {
+    _id: Types.ObjectId;
+}
+
+export { Ticket, TicketObject }
