@@ -14,7 +14,7 @@ interface FlightDBPort {
 }
 
 type queryFindAll = {
-    offset: number;
+    offset?: number;
     withDatetime?: filterWithDate;
     withoutDatetime?: filterWithCurrentDate;
     name?: string;

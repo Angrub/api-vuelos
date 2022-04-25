@@ -25,7 +25,7 @@ class UserService {
     }
 
     async init() {
-        const admin = await this.db.findUser({email: 'admin@fake.com'});
+        const admin = await this.db.findUser({email: this.adminEmail});
         if(!admin){
             await this.db.createUser({
                 username: 'admin',

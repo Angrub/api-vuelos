@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 
 interface Ticket {
-    _owner_id: string;
+    _owner_id: Types.ObjectId;
     cost: number;
     seat: number;
 }

@@ -1,5 +1,5 @@
 import { Flight, FlightCreateParams, FlightObject } from "../../../entities/flight.entity";
-import { Model, model } from 'mongoose';
+import { Model, model, Types } from 'mongoose';
 import { findObjectParam, FlightDBPort, queryFindAll } from "../../../ports/db-ports/flight.port";
 import { FlightSchema } from "./schemas/flight.schema";
 import { Subscriptions } from "../../../entities/subscriptions.entity";
@@ -11,9 +11,9 @@ import { TicketObject } from "../../../entities/sub_entities/ticket.entity";
 import { BaggageObject } from "../../../entities/sub_entities/baggage.entity";
 
 class FlightModel implements FlightDBPort {
-    model: Model<Flight>;
-    subsModel: Model<Subscriptions>;
-    baggagesModel: Model<Baggages>;
+    private model: Model<Flight>;
+    private subsModel: Model<Subscriptions>;
+    private baggagesModel: Model<Baggages>;
 
     constructor() {
         this.model = model<Flight>('Flights', FlightSchema);
@@ -76,7 +76,7 @@ class FlightModel implements FlightDBPort {
         if(!subscriptions || !flight) return undefined;
         
         subscriptions.tickets.push({
-            _owner_id: userId, 
+            _owner_id: new Types.ObjectId(userId), 
             cost: flight.aircraft.base_cost_per_seat, 
             seat: subscriptions.tickets.length + 2
         })
@@ -117,7 +117,7 @@ class FlightModel implements FlightDBPort {
         if(!baggages || !flight) return undefined;
         
         baggages.baggages.push({
-            _owner_id: userId,
+            _owner_id: new Types.ObjectId(userId),
             weight
         })
 

@@ -5,7 +5,7 @@ import { AirportSchema } from "./schemas/airport.schema";
 import { Aircraft, AircraftObject } from "../../../entities/sub_entities/aircraft.entity";
 
 class AirportModel implements AirportDBPort {
-    model: Model<Airport>;
+    private model: Model<Airport>;
     
     constructor() {
         this.model = this.init();
@@ -21,8 +21,10 @@ class AirportModel implements AirportDBPort {
         return airportSaved;
     }
 
-    async findAirport(name: string) {
-        const airport = await this.model.findOne({name});
+    async findAirport(name: string, main?: boolean) {
+        const key = main ? 'main' : 'name';
+        const value = main ? main : name;
+        const airport = await this.model.findOne({[key]: value});
         if(!airport) return undefined;
         return airport;
     }
