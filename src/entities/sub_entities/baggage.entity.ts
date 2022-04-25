@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 
 interface Baggage {
-    _owner_id: Types.ObjectId;
+    _owner_id: string;
     weight?: number;
 }
 

@@ -8,9 +8,9 @@ interface FlightDBPort {
     findAll: (query: queryFindAll) => Promise<FlightObject[]>;
     updateFlightStatus: (id: string, status: boolean) => Promise<FlightObject | undefined>;
     createTicket: (flightId: string, userId: string) => Promise<TicketObject | undefined>;
-    deleteTicket: (flightId: string, findTicket: findTicketParam) => Promise<TicketObject | undefined>;
-    createBaggage: (weight?: number) => Promise<BaggageObject | undefined>;
-    deleteBaggage: (id: string) => Promise<BaggageObject | undefined>
+    deleteTicket: (flightId: string, findTicket: findObjectParam) => Promise<TicketObject | undefined>;
+    createBaggage: (flightId: string, userId: string, weight?: number) => Promise<BaggageObject | undefined>;
+    deleteBaggage: (flightId: string, findBaggage: findObjectParam) => Promise<BaggageObject | undefined>
 }
 
 type queryFindAll = {
@@ -23,12 +23,15 @@ type queryFindAll = {
 type filterWithDate = { date: string, filter: 'current' | 'after' | 'before'};
 type filterWithCurrentDate = 'last_day' | 'last_week' | 'last_month' | 'last_year';
 
-type findTicketParam = {userId: string} | {ticketId: string};
+type findObjectParam = {
+    userId?: string;
+    objectId?: string;
+};
 
 export { 
     FlightDBPort, 
     queryFindAll, 
-    findTicketParam ,
+    findObjectParam ,
     filterWithDate,
     filterWithCurrentDate
 }
