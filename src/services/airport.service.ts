@@ -11,7 +11,7 @@ class AirportService {
         this.init();
     }
 
-    async init() {
+    private async init() {
         const main = await this.db.findAirport('default main');
         
         if(!main) {
@@ -44,7 +44,7 @@ class AirportService {
 
     async createAircraft(data: createAircraftParams) {
         const newAircraft = await this.db.createAircraft(data.airportId, data.aircraftData);
-        if(newAircraft) throw HttpError.BadRequest({message: 'nonexistent airport'});
+        if(!newAircraft) throw HttpError.BadRequest({message: 'nonexistent airport'});
 
         return newAircraft;
     }

@@ -1,5 +1,5 @@
 import { AirportDBPort } from "../../../ports/db-ports/airport.port";
-import { Model, model } from 'mongoose';
+import { Model, model, Types } from 'mongoose';
 import { Airport } from "../../../entities/airport.entity";
 import { AirportSchema } from "./schemas/airport.schema";
 import { Aircraft, AircraftObject } from "../../../entities/sub_entities/aircraft.entity";
@@ -21,9 +21,9 @@ class AirportModel implements AirportDBPort {
         return airportSaved;
     }
 
-    async findAirport(name: string, main?: boolean) {
-        const key = main ? 'main' : 'name';
-        const value = main ? main : name;
+    async findAirport(_id: string, main?: boolean) {
+        const key = main ? 'main' : '_id';
+        const value = main ? main : _id;
         const airport = await this.model.findOne({[key]: value});
         if(!airport) return undefined;
         return airport;
@@ -35,7 +35,7 @@ class AirportModel implements AirportDBPort {
     }
 
     async createAircraft(airportId: string, data: Aircraft) {
-        const airport = await this.model.findById(airportId);
+        const airport = await this.model.findOne();
         if(!airport) return undefined;
         airport.aircrafts.push(data);
         const airportUpdated = await this.model.findOneAndUpdate(
@@ -49,8 +49,10 @@ class AirportModel implements AirportDBPort {
     async findAircraft(airportId: string, id: string) {
         const airport = await this.model.findById(airportId);
         if(!airport) return undefined;
-        const aircraft = <AircraftObject | undefined> airport.aircrafts.find((_aircraft: any) => {
-            return _aircraft._id === id;
+
+        const aircrafts = <AircraftObject[]> airport.aircrafts;
+        const aircraft = aircrafts.find(_aircraft => {
+            return _aircraft._id.toString() === id;
         });
 
         return aircraft;
@@ -67,17 +69,18 @@ class AirportModel implements AirportDBPort {
         const airport = await this.model.findById(airportId);
         if(!airport) return undefined;
 
-        const index = airport.aircrafts.findIndex((_aircraft: any) => {
-            return _aircraft._id === id;
+        const aircrafts = <AircraftObject[]> airport.aircrafts;
+        const index = aircrafts.findIndex(_aircraft => {
+            return _aircraft._id.toString() === id;
         });
+        console.log(index)
         if(index < 0) return undefined;
 
-        const aircraftDeleted = airport.aircrafts[index];
-        airport.aircrafts = airport.aircrafts.splice(index, 1);
-
+        const aircraftDeleted = aircrafts[index];
+        aircrafts.splice(index, 1);
         await this.model.findOneAndUpdate(
             {_id: airportId}, 
-            {aircrafts: airport.aircrafts});
+            {aircrafts});
 
         return <AircraftObject> aircraftDeleted;
     }

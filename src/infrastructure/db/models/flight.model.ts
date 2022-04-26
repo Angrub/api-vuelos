@@ -54,19 +54,29 @@ class FlightModel implements FlightDBPort {
     }
 
     async findAll(query: queryFindAll) {
-        const aggregates = [];
+        const { 
+            name,
+            date,
+            filterForDate,
+            filterForCurrentDate
+         } = query;
 
-        if(query.name) aggregates.push(aggregateForName(query.name));
-        if(query.withDatetime) aggregates.push(aggregateForDate(query.withDatetime));
-        if(query.withoutDatetime) aggregates.push(aggregateForCurrentDate(query.withoutDatetime));
+        if(!name && !filterForCurrentDate && (!filterForDate || !date)) {
+            return await this.model.find();
 
-        const flights = await this.model.aggregate(aggregates);
+        } else {
+            const aggregates = [];
 
-        return flights
+            if(name) aggregates.push(aggregateForName(name));
+            if(date && filterForDate) aggregates.push(aggregateForDate(date, filterForDate));
+            if(filterForCurrentDate) aggregates.push(aggregateForCurrentDate(filterForCurrentDate));
+    
+            return await this.model.aggregate(aggregates);
+        }
     }
 
     async updateFlightStatus(id: string, status: boolean) {
-        const flightStatusUpdated = <FlightObject | undefined> await this.model.findOneAndUpdate({_id: id}, {status});
+        const flightStatusUpdated = <FlightObject | undefined> await this.model.findOneAndUpdate({_id: id}, {active: status});
         return flightStatusUpdated;
     }
 
@@ -102,7 +112,7 @@ class FlightModel implements FlightDBPort {
         if(ticketIndex < 0) return undefined;
 
         const ticketDeleted = subscriptions.tickets[ticketIndex];
-        subscriptions.tickets = subscriptions.tickets.splice(ticketIndex, 1);
+        subscriptions.tickets.splice(ticketIndex, 1);
         await this.subsModel.findOneAndUpdate(
             { _id: subscriptions._id },
             {tickets: subscriptions.tickets}
@@ -142,7 +152,7 @@ class FlightModel implements FlightDBPort {
         if(baggageIndex < 0) return undefined;
 
         const baggageDeleted = baggages.baggages[baggageIndex];
-        baggages.baggages = baggages.baggages.splice(baggageIndex, 1);
+        baggages.baggages.splice(baggageIndex, 1);
         await this.baggagesModel.findOneAndUpdate(
             { _id: baggages._id },
             {baggages: baggages.baggages}

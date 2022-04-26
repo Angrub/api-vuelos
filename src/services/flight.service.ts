@@ -16,13 +16,14 @@ class FlightService {
 
     async create(data: createFlightParams) {
         const mainAirport = await this.airportDB.findAirport('', true);
-        if(!mainAirport) throw HttpError.InternalServerError('Main airport is not defined');
+        if(!mainAirport) throw HttpError.InternalServerError('The main airport is not defined');
 
-        const aircraft = await this.airportDB.findAircraft(mainAirport._id.toString(), data.aircraftId);
+        const aircraft = await this.airportDB.findAircraft(mainAirport._id.toString(), data.aircraft_id);
         if(!aircraft) throw HttpError.BadRequest({message: 'nonexistent aircraft'});
 
-        const destinationAirport = await this.airportDB.findAirport(data._to_name);
+        const destinationAirport = await this.airportDB.findAirport(data._to_id);
         if(!destinationAirport) throw HttpError.BadRequest({message: 'nonexistent airport'});
+        if(destinationAirport.main) throw HttpError.BadRequest({message: 'The main airport cannot be a destination'})
 
         await this.flightsDB.createFlight({
             name: data.name,
@@ -36,6 +37,7 @@ class FlightService {
 
     async all(query: queryFindAll) {
         const flights = await this.flightsDB.findAll(query);
+        if(!flights) throw HttpError.BadRequest({message: 'There is not filter'})
         return flights;
     }
 
@@ -87,8 +89,8 @@ type createFlightParams = {
     name: string;
     departing: string;
     returning: string;
-    aircraftId: string;
-    _to_name: string;
+    aircraft_id: string;
+    _to_id: string;
 }
 
 type updateFlightStatusParams = {

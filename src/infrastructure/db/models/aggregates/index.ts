@@ -5,13 +5,12 @@ function aggregateForName(name: string) {
     return nameMatch;
 } 
 
-function aggregateForDate(filterData: filterWithDate) {
-    const { filter, date } = filterData;
+function aggregateForDate(date: string, filter: filterWithDate) {
     switch(filter) {
         case 'current': 
             return {
                 $match: {
-                    $eq: [{$dayOfMonth: '$departing'}, {$dayOfMonth: new Date(date)}]
+                    $expr: { $eq: [{$dayOfMonth: '$departing'}, {$dayOfMonth: new Date(date)}] }
                 }
             }
 
@@ -36,28 +35,28 @@ function aggregateForCurrentDate(filterData: filterWithCurrentDate) {
         case 'last_day':
             return {
                 $match: {
-                    $eq: [{$dayOfMonth: '$departing'}, {$dayOfMonth: new Date()}]
+                    $expr: { $eq: [{$dayOfMonth: '$departing'}, {$dayOfMonth: new Date()}] }
                 }
             }
 
         case 'last_week':
             return {
                 $match: {
-                    $eq: [{$week: '$departing'}, {$week: new Date()}]
+                    $expr: { $eq: [{$week: '$departing'}, {$week: new Date()}] }
                 }
             }
 
         case 'last_month':
             return {
                 $match: {
-                    $eq: [{$month: '$departing'}, {$month: new Date()}]
+                    $expr: { $eq: [{$month: '$departing'}, {$month: new Date()}] }
                 }
             }
 
         case 'last_year':
             return {
                 $match: {
-                    $eq: [{$year: '$departing'}, {$year: new Date()}]
+                    $expr: { $eq: [{$year: '$departing'}, {$year: new Date()}] }
                 }
             }
     }

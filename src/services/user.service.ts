@@ -24,7 +24,7 @@ class UserService {
         }
     }
 
-    async init() {
+    private async init() {
         const admin = await this.db.findUser({email: this.adminEmail});
         if(!admin){
             await this.db.createUser({
@@ -89,7 +89,8 @@ class UserService {
         if(password !== passwordConfirm) 
         throw HttpError.BadRequest({message: 'password and password confirm are not the same'});
 
-        const userUpdated = await this.db.updatePassword(sub, password);
+        const hash = await this.authModule.createHashPassword(password);
+        const userUpdated = await this.db.updatePassword(sub, hash);
         if(!userUpdated) throw HttpError.BadRequest({message: 'Nonexistent user'});
     }
 

@@ -15,12 +15,13 @@ interface FlightDBPort {
 
 type queryFindAll = {
     offset?: number;
-    withDatetime?: filterWithDate;
-    withoutDatetime?: filterWithCurrentDate;
+    date?: string;
+    filterForDate?: filterWithDate;
+    filterForCurrentDate?: filterWithCurrentDate;
     name?: string;
 }
 
-type filterWithDate = { date: string, filter: 'current' | 'after' | 'before'};
+type filterWithDate = 'current' | 'after' | 'before';
 type filterWithCurrentDate = 'last_day' | 'last_week' | 'last_month' | 'last_year';
 
 type findObjectParam = {

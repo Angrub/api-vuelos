@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 
 interface Aircraft {
     model: string;
@@ -6,7 +8,7 @@ interface Aircraft {
 }
 
 interface AircraftObject extends Aircraft {
-    _id: string;
+    _id: Types.ObjectId;
 }
 
 export { Aircraft, AircraftObject }
