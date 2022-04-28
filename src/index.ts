@@ -1,9 +1,9 @@
 import express from 'express'
 import { config } from './config';
-import { dbConnect } from './infrastructure/db';
+import { dbConnect, seederInit } from './infrastructure/db';
 import { errorHandler } from './infrastructure/middlewares/error_handler';
 import { logError } from './infrastructure/middlewares/log_error';
-import { ApiRouter } from './infrastructure/routes';
+import { getRouter } from './infrastructure/routes';
 
 async function init() {
     try {
@@ -15,7 +15,17 @@ async function init() {
         console.log('db connected :D');
         
         // routes
+        const ApiRouter = await getRouter();
         server.use('/api', ApiRouter);
+        
+        // seeders
+        if(config.app.seeder > 0) {
+            await seederInit({
+                aircraftsNumber: 5,
+                airportsNumber: 3,
+                flightsNumber: 15
+            })
+        }
         
         // middlewares
         server.use(logError);

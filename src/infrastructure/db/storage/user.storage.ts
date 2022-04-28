@@ -1,17 +1,13 @@
 import { findParams, UserDBPort } from "../../../ports/db-ports/user.port";
-import { model, Model } from "mongoose";
+import { Model } from "mongoose";
 import { User, UserObject } from "../../../entities/user.entity";
-import { UserSchema } from "./schemas/user.schema";
+import { userModel } from "./models";
 
 class UserModel implements UserDBPort {
     model: Model<User>
 
     constructor() {
-        this.model = this.init();
-    }
-
-    init() {
-        return model<User>('Users', UserSchema);
+        this.model = userModel;
     }
 
     async createUser(userData: User) {

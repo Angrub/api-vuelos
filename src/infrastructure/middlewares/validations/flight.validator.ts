@@ -30,18 +30,19 @@ const updateStatusValidator = [
 ];
 
 const subscribeValidator = [
-    body('flightId').exists({checkFalsy: true}).isString().isLength({min: 24}),
+    body('flightId').exists({checkFalsy: true}).isString().isLength({min: 24})
 ];
-
 
 const registerBaggageValidator = [
     body('weight').optional().isNumeric({no_symbols: true})
 ].concat(subscribeValidator);
 
+const listObjects = param('flightId').exists({checkFalsy: true}).isString().isLength({min: 24});
+
 const removeObjectValidator = [
     param('flightId').exists({checkFalsy: true}).isString().isLength({min: 24}),
-    query('userId').optional().exists({checkFalsy: true}).isString().isLength({min: 24}),
-    query('objectId').optional().exists({checkFalsy: true}).isString().isLength({min: 24})
+    param('id').exists({checkFalsy: true}).isString().isLength({min: 24}),
+    
 ];
 
 export {
@@ -50,5 +51,6 @@ export {
     updateStatusValidator,
     subscribeValidator,
     registerBaggageValidator,
+    listObjects,
     removeObjectValidator
 }

@@ -8,6 +8,7 @@ services:
             - ADMIN_EMAIL=${ADMIN_EMAIL}
             - MONGO_URL=${MONGO_URL}
             - JWT_SECRET=${JWT_SECRET}
+            - SEEDER=${SEEDER}
         depends_on:
             - db
         ports:

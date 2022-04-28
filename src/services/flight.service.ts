@@ -1,6 +1,6 @@
 import { HttpError } from "../infrastructure/httpError.module";
 import { AirportDBPort } from "../ports/db-ports/airport.port";
-import { findObjectParam, FlightDBPort, queryFindAll } from "../ports/db-ports/flight.port";
+import { FlightDBPort, queryFindAll } from "../ports/db-ports/flight.port";
 import { UserDBPort } from "../ports/db-ports/user.port";
 
 class FlightService {
@@ -53,13 +53,21 @@ class FlightService {
 
         const ticket = await this.flightsDB.createTicket(flightId, userId);
         if(!ticket) throw HttpError.BadRequest({message: 'nonexistent flight'});
+        else if(ticket === 'isFull') HttpError.BadRequest({message: 'no seats available'});
 
         return ticket;
     }
 
+    async listSubscriptions(flightId: string) {
+        const subscriptions = await this.flightsDB.findAllTickets(flightId);
+        if(!subscriptions) throw HttpError.BadRequest({message: 'nonexistent flight'});
+        
+        return subscriptions;
+    }
+
     async unsubscribe(data: removeObjectParams) {
-        const { flightId, findObject } = data;
-        const ticketDeleted = await this.flightsDB.deleteTicket(flightId, findObject);
+        const { flightId, id } = data;
+        const ticketDeleted = await this.flightsDB.deleteTicket(flightId, id);
         if(!ticketDeleted) throw HttpError.BadRequest({message: 'nonexistent flight or ticket'});
 
         return ticketDeleted;
@@ -76,9 +84,16 @@ class FlightService {
         return baggage;
     }
 
+    async listBaggages(flightId: string) {
+        const baggages = await this.flightsDB.findAllBaggages(flightId);
+        if(!baggages) throw HttpError.BadRequest({message: 'nonexistent flight'});
+        
+        return baggages;
+    }
+
     async removeBaggage(data: removeObjectParams) {
-        const { flightId, findObject } = data;
-        const baggageDeleted = await this.flightsDB.deleteBaggage(flightId, findObject);
+        const { flightId, id } = data;
+        const baggageDeleted = await this.flightsDB.deleteBaggage(flightId, id);
         if(!baggageDeleted) throw HttpError.BadRequest({message: 'nonexistent flight or baggage'});
 
         return baggageDeleted;
@@ -105,7 +120,7 @@ type subscribeParams = {
 
 type removeObjectParams = {
     flightId: string;
-    findObject: findObjectParam
+    id: string;
 }
 
 type toRegisterBaggageParams = {

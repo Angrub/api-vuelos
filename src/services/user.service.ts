@@ -6,31 +6,20 @@ import { HttpError } from "../infrastructure/httpError.module";
 
 class UserService {
     private db: UserDBPort;
-    private adminPassword: string;
-    private adminEmail: string;
     private authModule: AuthModulePort;
 
     constructor(db: UserDBPort, authModule: AuthModulePort) {
         this.db = db;
         this.authModule = authModule;
-
-        if(config.app.adminPassword && config.app.adminEmail) {
-            this.adminPassword = config.app.adminPassword;
-            this.adminEmail = config.app.adminEmail;
-            this.init();
-                
-        } else {
-            throw HttpError.InternalServerError('env variable ADMIN_PASSWORD or ADMIN_EMAIL is not defined');
-        }
     }
 
-    private async init() {
-        const admin = await this.db.findUser({email: this.adminEmail});
+    async init(adminEmail: string, adminPassword: string) {
+        const admin = await this.db.findUser({email: adminEmail});
         if(!admin){
             await this.db.createUser({
                 username: 'admin',
-                email: this.adminEmail,
-                password: await this.authModule.createHashPassword(this.adminPassword),
+                email: adminEmail,
+                password: await this.authModule.createHashPassword(adminPassword),
                 scope: 'admin'
             });
         }

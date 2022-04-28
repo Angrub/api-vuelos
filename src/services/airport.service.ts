@@ -7,12 +7,10 @@ class AirportService {
 
     constructor(db: AirportDBPort) {
         this.db = db;
-
-        this.init();
     }
 
-    private async init() {
-        const main = await this.db.findAirport('default main');
+    async init() {
+        const main = await this.db.findAirport('', true);
         
         if(!main) {
             await this.db.createAirport({

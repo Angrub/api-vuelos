@@ -6,6 +6,7 @@ import { Authorization } from "../middlewares/jwt_auth";
 import { 
     createFlightValidator, 
     listFlightsValidator, 
+    listObjects, 
     registerBaggageValidator, 
     removeObjectValidator, 
     subscribeValidator, 
@@ -88,7 +89,25 @@ function flightRouter(service: FlightService) {
             }
     });
 
-    router.delete('/subscription/:flightId',
+    router.get('/subscription/:flightId',
+        listObjects, 
+        Authorization('employee'), 
+        async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                // data validation
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    throw HttpError.BadRequest(errors.array());
+                }
+            
+                const subscriptions = await service.listSubscriptions(req.params.flightId);
+                res.json({subscriptions}); 
+            } catch(error) {
+                next(error);
+            }
+    });
+
+    router.delete('/subscription/:flightId/:id',
         removeObjectValidator,
         Authorization('employee'),
         async (req: Request, res: Response, next: NextFunction) => {
@@ -99,9 +118,9 @@ function flightRouter(service: FlightService) {
                     throw HttpError.BadRequest(errors.array());
                 }
             
-                const { flightId } = req.params;
-                const ticket = await service.unsubscribe({flightId, findObject: req.query});
-                res.status(201).json({ticket}); 
+                const { flightId, id } = req.params;
+                const ticket = await service.unsubscribe({flightId, id});
+                res.json({ticket}); 
             } catch(error) {
                 next(error);
             }
@@ -130,7 +149,25 @@ function flightRouter(service: FlightService) {
             }
     });
 
-    router.delete('/baggage/:flightId',
+    router.get('/baggage/:flightId',
+        listObjects, 
+        Authorization('employee'), 
+        async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                // data validation
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    throw HttpError.BadRequest(errors.array());
+                }
+            
+                const baggages = await service.listBaggages(req.params.flightId);
+                res.json({baggages}); 
+            } catch(error) {
+                next(error);
+            }
+    });
+
+    router.delete('/baggage/:flightId/:id',
         removeObjectValidator,
         Authorization('employee'),
         async (req: Request, res: Response, next: NextFunction) => {
@@ -141,9 +178,9 @@ function flightRouter(service: FlightService) {
                     throw HttpError.BadRequest(errors.array());
                 }
             
-                const { flightId } = req.params;
-                const baggage = await service.removeBaggage({flightId, findObject: req.query});
-                res.status(201).json({baggage}); 
+                const { flightId, id } = req.params;
+                const baggage = await service.removeBaggage({flightId, id});
+                res.json({baggage}); 
             } catch(error) {
                 next(error);
             }

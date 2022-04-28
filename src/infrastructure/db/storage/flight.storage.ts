@@ -1,14 +1,12 @@
 import { Flight, FlightCreateParams, FlightObject } from "../../../entities/flight.entity";
-import { Model, model, Types } from 'mongoose';
-import { findObjectParam, FlightDBPort, queryFindAll } from "../../../ports/db-ports/flight.port";
-import { FlightSchema } from "./schemas/flight.schema";
+import { Model, Types } from 'mongoose';
+import { FlightDBPort, queryFindAll } from "../../../ports/db-ports/flight.port";
 import { Subscriptions } from "../../../entities/subscriptions.entity";
 import { Baggages } from "../../../entities/baggages.entity";
-import { SubscriptionsSchema } from "./schemas/subscriptions.schema";
-import { BaggagesSchema } from "./schemas/baggages.schema";
 import { aggregateForCurrentDate, aggregateForDate, aggregateForName } from "./aggregates";
 import { TicketObject } from "../../../entities/sub_entities/ticket.entity";
 import { BaggageObject } from "../../../entities/sub_entities/baggage.entity";
+import { baggagesModel, flightModel, subsModel } from "./models";
 
 class FlightModel implements FlightDBPort {
     private model: Model<Flight>;
@@ -16,9 +14,9 @@ class FlightModel implements FlightDBPort {
     private baggagesModel: Model<Baggages>;
 
     constructor() {
-        this.model = model<Flight>('Flights', FlightSchema);
-        this.subsModel = model<Subscriptions>('Subscriptions', SubscriptionsSchema);
-        this.baggagesModel = model<Baggages>('Baggages', BaggagesSchema);
+        this.model = flightModel;
+        this.subsModel = subsModel;
+        this.baggagesModel = baggagesModel;
     }
 
     async createFlight(flightData: FlightCreateParams) {
@@ -85,80 +83,88 @@ class FlightModel implements FlightDBPort {
         const subscriptions = await this.subsModel.findOne({_flight_id: flightId});
         if(!subscriptions || !flight) return undefined;
         
+        const { base_cost_per_seat } = flight.aircraft;
+        if(base_cost_per_seat === subscriptions.tickets.length) return 'isFull';
+
         subscriptions.tickets.push({
             _owner_id: new Types.ObjectId(userId), 
-            cost: flight.aircraft.base_cost_per_seat, 
-            seat: subscriptions.tickets.length + 2
-        })
+            cost: base_cost_per_seat, 
+            seat: subscriptions.tickets.length + 1
+        });
 
-        const subscriptionUpdated = await this.subsModel.findOneAndUpdate(
-            {_flight_id: flightId},
-            {tickets: subscriptions.tickets}
-        )
-
-        const ticket = <TicketObject> subscriptionUpdated?.tickets.pop();
+        await subscriptions.save()
+        
+        const ticket = <TicketObject> subscriptions.tickets.pop();
 
         return ticket;
     }
 
-    async deleteTicket(flightId: string, findTicket: findObjectParam){
+    async findAllTickets(flightId: string) {
         const subscriptions = await this.subsModel.findOne({_flight_id: flightId});
         if(!subscriptions) return undefined;
 
-        const ticketIndex = subscriptions.tickets.findIndex((ticket: any) => {
-            if(findTicket.userId) return ticket._owner_id === findTicket.userId;
-            else if(findTicket.objectId) return ticket._id === findTicket.objectId;
+        const tickets = <TicketObject[]> subscriptions.tickets;
+        
+        return tickets;
+    }
+
+    async deleteTicket(flightId: string, id: string) {
+        const subscriptions = await this.subsModel.findOne({_flight_id: flightId});
+        if(!subscriptions) return undefined;
+
+        const tickets = <TicketObject[]> subscriptions.tickets;
+        const ticketIndex = tickets.findIndex(ticket => {
+            return ticket._id.toString() === id;
         }); 
         if(ticketIndex < 0) return undefined;
 
-        const ticketDeleted = subscriptions.tickets[ticketIndex];
+        const ticketDeleted = tickets[ticketIndex];
         subscriptions.tickets.splice(ticketIndex, 1);
-        await this.subsModel.findOneAndUpdate(
-            { _id: subscriptions._id },
-            {tickets: subscriptions.tickets}
-        );
+        await subscriptions.save();
 
-        return <TicketObject> ticketDeleted;
+        return ticketDeleted;
     }    
 
     async createBaggage(flightId: string, userId: string, weight?: number) {
         const flight = await this.model.findById(flightId);
-        const baggages = await this.baggagesModel.findOne({_flight_id: flightId});
-        if(!baggages || !flight) return undefined;
+        const baggagesObject = await this.baggagesModel.findOne({_flight_id: flightId});
+        if(!baggagesObject || !flight) return undefined;
         
-        baggages.baggages.push({
+        baggagesObject.baggages.push({
             _owner_id: new Types.ObjectId(userId),
             weight
-        })
+        });
 
-        const baggagesUpdated = await this.baggagesModel.findOneAndUpdate(
-            {_flight_id: flightId},
-            {baggages: baggages.baggages}
-        )
-
-        const baggage = <BaggageObject> baggagesUpdated?.baggages.pop();
+        await baggagesObject.save();
+        const baggage = <BaggageObject> baggagesObject.baggages.pop();
 
         return baggage;
     }
 
-    async deleteBaggage(flightId: string, findBaggage: findObjectParam) {
-        const baggages = await this.baggagesModel.findOne({_flight_id: flightId});
-        if(!baggages) return undefined;
+    async findAllBaggages(flightId: string) {
+        const baggagesObject = await this.baggagesModel.findOne({_flight_id: flightId});
+        if(!baggagesObject) return undefined;
 
-        const baggageIndex = baggages.baggages.findIndex((baggage: any) => {
-            if(findBaggage.userId) return baggage._owner_id === findBaggage.userId;
-            else if(findBaggage.objectId) return baggage._id === findBaggage.objectId;
+        const baggages =  <BaggageObject[]> baggagesObject.baggages;
+
+        return baggages;
+    }
+
+    async deleteBaggage(flightId: string, id: string) {
+        const baggagesObject = await this.baggagesModel.findOne({_flight_id: flightId});
+        if(!baggagesObject) return undefined;
+
+        const baggages = <BaggageObject[]> baggagesObject.baggages;
+        const baggageIndex = baggages.findIndex(baggage => {
+            return baggage._id.toString() === id;
         }); 
         if(baggageIndex < 0) return undefined;
 
-        const baggageDeleted = baggages.baggages[baggageIndex];
-        baggages.baggages.splice(baggageIndex, 1);
-        await this.baggagesModel.findOneAndUpdate(
-            { _id: baggages._id },
-            {baggages: baggages.baggages}
-        );
+        const baggageDeleted = baggages[baggageIndex];
+        baggagesObject.baggages.splice(baggageIndex, 1);
+        await baggagesObject.save();
 
-        return <BaggageObject> baggageDeleted;
+        return baggageDeleted;
     }
 }
 

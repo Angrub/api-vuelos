@@ -1,18 +1,14 @@
 import { AirportDBPort } from "../../../ports/db-ports/airport.port";
-import { Model, model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Airport } from "../../../entities/airport.entity";
-import { AirportSchema } from "./schemas/airport.schema";
 import { Aircraft, AircraftObject } from "../../../entities/sub_entities/aircraft.entity";
+import { airportModel } from "./models";
 
 class AirportModel implements AirportDBPort {
     private model: Model<Airport>;
     
     constructor() {
-        this.model = this.init();
-    }
-
-    init() {
-        return model<Airport>('Airports', AirportSchema);
+        this.model = airportModel;
     }
 
     async createAirport(airportData: Airport) {
