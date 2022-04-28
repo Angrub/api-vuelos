@@ -19,13 +19,13 @@ async function init() {
         server.use('/api', ApiRouter);
         
         // seeders
-        if(config.app.seeder > 0) {
-            await seederInit({
-                aircraftsNumber: 5,
-                airportsNumber: 3,
-                flightsNumber: 15
-            })
-        }
+        // if(config.app.seeder > 0) {
+        //     await seederInit({
+        //         aircraftsNumber: 5,
+        //         airportsNumber: 3,
+        //         flightsNumber: 15
+        //     })
+        // }
         
         // middlewares
         server.use(logError);

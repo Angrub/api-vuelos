@@ -9,7 +9,7 @@ const createFlightValidator = [
 ];
 
 const listFlightsValidator = [
-    query('offset').optional().isNumeric(),
+    query('offset').optional().toInt(),
     query('date').optional().isISO8601(),
     query('filterForDate').optional().custom(value => {
         const possibleValues = ['current', 'after', 'before'];

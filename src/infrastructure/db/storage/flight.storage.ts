@@ -3,7 +3,7 @@ import { Model, Types } from 'mongoose';
 import { FlightDBPort, queryFindAll } from "../../../ports/db-ports/flight.port";
 import { Subscriptions } from "../../../entities/subscriptions.entity";
 import { Baggages } from "../../../entities/baggages.entity";
-import { aggregateForCurrentDate, aggregateForDate, aggregateForName } from "./aggregates";
+import { aggregateForCurrentDate, aggregateForDate, aggregateForName, aggregateForOffset } from "./aggregates";
 import { TicketObject } from "../../../entities/sub_entities/ticket.entity";
 import { BaggageObject } from "../../../entities/sub_entities/baggage.entity";
 import { baggagesModel, flightModel, subsModel } from "./models";
@@ -56,10 +56,11 @@ class FlightModel implements FlightDBPort {
             name,
             date,
             filterForDate,
-            filterForCurrentDate
+            filterForCurrentDate,
+            offset
          } = query;
 
-        if(!name && !filterForCurrentDate && (!filterForDate || !date)) {
+        if(!name && !filterForCurrentDate && (!filterForDate || !date) && !offset) {
             return await this.model.find();
 
         } else {
@@ -68,7 +69,8 @@ class FlightModel implements FlightDBPort {
             if(name) aggregates.push(aggregateForName(name));
             if(date && filterForDate) aggregates.push(aggregateForDate(date, filterForDate));
             if(filterForCurrentDate) aggregates.push(aggregateForCurrentDate(filterForCurrentDate));
-    
+            if(offset) aggregateForOffset(offset, aggregates);
+
             return await this.model.aggregate(aggregates);
         }
     }

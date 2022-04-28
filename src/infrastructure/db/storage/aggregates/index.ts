@@ -31,35 +31,52 @@ function aggregateForDate(date: string, filter: filterWithDate) {
 }
 
 function aggregateForCurrentDate(filterData: filterWithCurrentDate) {
+    const today = new Date();
     switch(filterData) {
         case 'last_day':
             return {
                 $match: {
-                    $expr: { $eq: [{$dayOfMonth: '$departing'}, {$dayOfMonth: new Date()}] }
+                    $expr: { 
+                        $and: [
+                            { $eq: [{$dayOfYear: '$departing'}, {$dayOfYear: today}] },
+                            { $eq: [{$year: '$departing'}, {$year: today}] }
+                        ] 
+                    }
                 }
             }
 
         case 'last_week':
             return {
                 $match: {
-                    $expr: { $eq: [{$week: '$departing'}, {$week: new Date()}] }
+                    $expr: { $eq: [{$week: '$departing'}, {$week: today}] }
                 }
             }
 
         case 'last_month':
             return {
                 $match: {
-                    $expr: { $eq: [{$month: '$departing'}, {$month: new Date()}] }
+                    $expr: { $eq: [{$month: '$departing'}, {$month: today}] }
                 }
             }
 
         case 'last_year':
             return {
                 $match: {
-                    $expr: { $eq: [{$year: '$departing'}, {$year: new Date()}] }
+                    $expr: { $eq: [{$year: '$departing'}, {$year: today}] }
                 }
             }
     }
 }
 
-export { aggregateForName, aggregateForDate, aggregateForCurrentDate }
+function aggregateForOffset(offset: number, aggr: any[]) {
+    console.log(offset, aggr)
+    aggr.push({ $skip: offset })
+    aggr.push({ $limit: 10 })
+}
+
+export { 
+    aggregateForName, 
+    aggregateForDate, 
+    aggregateForCurrentDate,
+    aggregateForOffset
+}

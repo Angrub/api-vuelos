@@ -53,13 +53,13 @@ async function flightsSeeder(itemsNumber: number, models: modelsParams, data: da
     const subscriptions = [];
     const baggages = [];
 
-    const today = new Date();
-    const from = new Date(today.getMilliseconds() - 31536000000);
-    const to = new Date(today.getMilliseconds() + 31536000000);
-    const departing = date({from, to});
-    const returning = new Date(departing.getMilliseconds() + 604800000);
-
     for(let i = 0; i < itemsNumber; i++) {
+        const today = new Date();
+        const from = new Date(today.getTime() - 31536000000);
+        const to = new Date(today.getTime() + 31536000000);
+        const departing = date({from, to});
+        const returning = new Date(departing.getTime() + 604800000);
+        
         const newFlight = new models.flightModel({
             name: hex(),
             aircraft: randomItem(data.aircrafts),
@@ -94,7 +94,7 @@ async function flightsSeeder(itemsNumber: number, models: modelsParams, data: da
 
 
 function randomItem(array: any[]) {
-    const index = Math.round(Math.random() * array.length);
+    const index = Math.floor(Math.random() * array.length);
 
     return array[index];
 } 
