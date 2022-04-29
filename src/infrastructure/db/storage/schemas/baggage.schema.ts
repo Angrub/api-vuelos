@@ -3,7 +3,7 @@ import { Baggage } from '../../../../entities/sub_entities/baggage.entity';
 
 const BaggageSchema = new Schema<Baggage>({
     _owner_id: { 
-        type: String,
+        type: Schema.Types.ObjectId,
         require: true,
     },
     weight: {

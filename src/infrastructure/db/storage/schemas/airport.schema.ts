@@ -3,7 +3,7 @@ import { Airport } from '../../../../entities/airport.entity';
 import { AircraftSchema } from './aircraft.schema';
 
 const AirportSchema = new Schema<Airport>({
-    airlane: {
+    airline: {
         type: String,
         required: true
     },

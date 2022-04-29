@@ -22,7 +22,7 @@ async function airportsSeeder(itemsNumber: number, model: Model<Airport>) {
 
     for(let i = 0; i < itemsNumber; i++) {
         airports.push(new model({
-            airlane: word().toUpperCase(),
+            airline: word().toUpperCase(),
             name: cityName(),
             main: false,
             aircrafts: [],

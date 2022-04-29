@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { Aircraft } from './sub_entities/aircraft.entity';
 
 interface Airport {
-    airlane: string;
+    airline: string;
     name: string;
     main: boolean
     aircrafts: Aircraft[];

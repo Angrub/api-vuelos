@@ -11,7 +11,7 @@ const loginValidator = [
     body('password').isLength({min: 10})
 ];
 
-const deleteValidator = param('id').exists({checkFalsy: true}).isString(); 
+const deleteValidator = param('id').exists({checkFalsy: true}).isString().isLength({min: 24}); 
 
 const updatePasswordValidator = [
     body('new_password').isLength({min: 10}),

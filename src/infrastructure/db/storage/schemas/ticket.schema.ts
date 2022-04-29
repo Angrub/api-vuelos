@@ -3,7 +3,7 @@ import { Ticket } from '../../../../entities/sub_entities/ticket.entity';
 
 const TicketSchema = new Schema<Ticket>({
     _owner_id: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true
     },
     cost: {

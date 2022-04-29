@@ -24,6 +24,8 @@ RUN npm install --only=production
 
 COPY --from=builder ["/usr/src/bundle", "/usr/src/"]
 
+COPY ["./swagger.json", "/usr/"]
+
 EXPOSE 3000
 
 CMD ["npm", "run", "production"]

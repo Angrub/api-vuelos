@@ -1,0 +1,1296 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Aviación API",
+    "description": "API REST para sistema de una compañia de aviación",
+    "version": "1.0.0",
+    "contact": {
+      "email": "angrub1810@gmail.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://mit-license.org/"
+    }
+  },
+  "host": "localhost:3000",
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "users",
+      "description": "Autenticación y administración de usuarios"
+    },
+    {
+      "name": "airport",
+      "description": "Administración de aeropuertos y aviones"
+    },
+    {
+      "name": "flights",
+      "description": "Administración de vuelos"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/auth/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Listar usuarios registrados",
+        "description": "Lista todos los usuarios existentes. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "getUsers",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Iniciar sesión",
+        "description": "Al completarse la petición satisfactoriamente devuelve un token de autorización.",
+        "operationId": "getAuthUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Login",
+            "description": "Datos de un usuario existente",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos, el email no coincide o la contraseña es incorrecta."
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Registrar cliente",
+        "description": "Registra únicamente clientes",
+        "operationId": "createUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Register",
+            "description": "Datos del cliente. La contraseña debe ser mayor a 10 carácteres",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created."
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos o la contraseña es menor a 10 carácteres."
+          }
+        }
+      }
+    },
+    "/auth/register/employee": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Registrar empleado",
+        "description": "Registra únicamente empleados. Se requiere un token de autorización con permisos de administrador",
+        "operationId": "createEmployee",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Register",
+            "description": "Datos del empleado. La contraseña debe ser mayor a 10 carácteres",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos o la contraseña es menor a 10 carácteres"
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/auth/updatePassword": {
+      "patch": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Actualizar contraseña",
+        "description": "Actualiza la contraseña del usuario especificado en el token. Se requiere token de autorización.",
+        "operationId": "updatePassword",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Passwords",
+            "description": "Nueva contraseña y confirmación. La contraseña debe ser de al menos 10 carácteres",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "new_password": {
+                  "type": "string"
+                },
+                "new_password_confirm": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos o la contraseña es menor a 10 carácteres."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          }
+        }
+      }
+    },
+    "/auth/delete/:{id}": {
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Eliminar usuario",
+        "description": "Elimina al usuario especificado en el token. Se requiere token de autorización. No funciona con la cuenta de administrador.",
+        "operationId": "deleteUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID de usuario; debe coincidir con el token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. El campo no es un id o no resuelve ningún usuario."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token o el id no coincide con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero el id es de otro usuario."
+          }
+        }
+      }
+    },
+    "/auth/delete/admin/:{id}": {
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Eliminar cualquier usuario",
+        "description": "Elimina a cualquier usuario menos al administrador. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "deleteAdminUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID de usuario",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. El campo no es un id o no resuelve ningún usuario."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token o el id no coincide con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/airports": {
+      "get": {
+        "tags": [
+          "airport"
+        ],
+        "summary": "Listar aeropuertos registrados",
+        "description": "Lista todos los aeropuertos existentes. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "getAirports",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Airport"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "airport"
+        ],
+        "summary": "Registrar aeropuerto",
+        "description": "Registra un nuevo aeropuerto. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "createAirport",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Airport",
+            "description": "Datos del aeropuerto",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "airline": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos o están en formato equivocado."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/airports/aircraft/:{airportId}": {
+      "get": {
+        "tags": [
+          "airport"
+        ],
+        "summary": "Listar aviones registrados",
+        "description": "Lista todos los aviones existentes en un aeropuerto determinado. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "getAircrafts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "airportId",
+            "in": "path",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Aircraft"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. AirportId no es id o no resuelve un aeropuerto."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/airports/aircraft": {
+      "post": {
+        "tags": [
+          "airport"
+        ],
+        "summary": "Registrar avión",
+        "description": "Registra un nuevo avión. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "createAircraft",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Aircraft",
+            "description": "Datos del avión",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "airportId": {
+                  "type": "string"
+                },
+                "aircraftData": {
+                  "type": "object",
+                  "properties": {
+                    "model": {
+                      "type": "string"
+                    },
+                    "base_cost_per_seat": {
+                      "type": "number"
+                    },
+                    "seats": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos, están en formato equivocado o airportId no resuelve un aeropuerto."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/airports/aircraft/:{airportId}/:{id}": {
+      "delete": {
+        "tags": [
+          "airport"
+        ],
+        "summary": "Eliminar avión",
+        "description": "Elimina un avión del registro. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "deleteAircraft",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "airportId",
+            "in": "path",
+            "description": "ID del aeropuerto",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID de avión",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Los campos no son id o alguno de ellos no resuelven un avión o aeropuerto."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/flights": {
+      "get": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Listar vuelos registrados",
+        "description": "Lista todos los vuelos existentes. Se requiere token de autorización con permisos de empleado.",
+        "operationId": "getFlights",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset para paginación. Si esta query está presente, automáticamente devolverá un límite de 10 resultados",
+            "required": false,
+            "type": "number"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Fecha por la que se quiere filtrar, funciona estrictamente con la query filterForDate",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filterForDate",
+            "in": "query",
+            "description": "Filtro de busqueda, funciona estrictamente con la query date",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "current",
+              "before",
+              "after"
+            ]
+          },
+          {
+            "name": "filterForCurrentDate",
+            "in": "query",
+            "description": "Filtro de busqueda, funciona con la fecha en que se hizo la petición",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "last_day",
+              "last_week",
+              "last_month",
+              "last_year"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Flight"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Registrar vuelo",
+        "description": "Registra un nuevo vuelo. Se requiere token de autorización con permisos de administrador.",
+        "operationId": "createFlight",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Flight",
+            "description": "Datos del vuelo",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "departing": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "returning": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "aircraft_id": {
+                  "type": "string"
+                },
+                "_to_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created."
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos, están en el formato equivocado o los ids no resuelven los objetos correspondientes"
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Actualizar estado de un vuelo",
+        "description": "Actualiza el estado de un vuelo (activo/inactivo). Se requiere token de autorización con permisos de administrador.",
+        "operationId": "updateFlightStatus",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "Id del vuelo y nuevo estado del vuelo",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Falta alguno de los campos, están en el formato equivocado o el id no resuelve ningun vuelo."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/flights/subscription/:{flightId}": {
+      "get": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Listar subscripciones de un vuelo",
+        "description": "Lista todas las subscripciones a un vuelo determinado. Se requiere token de autorización con permisos de empleado.",
+        "operationId": "getSubscriptions",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "flightId",
+            "in": "path",
+            "description": "Id del vuelo",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Ticket"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. El campo no es un id o no resuelve un vuelo."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/flights/subscription": {
+      "post": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Agregar subscripción a un vuelo",
+        "description": "Agrega una nueva subscripción a un vuelo. Se requiere token de autorización.",
+        "operationId": "createSubscription",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "FlightId",
+            "description": "Id del vuelo",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "flightId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created."
+          },
+          "400": {
+            "description": "Bad Request. Falta el campo flightId, no es un id o no resuelve ningún vuelo"
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          }
+        }
+      }
+    },
+    "/flights/subscription/:{flightId}/:{id}": {
+      "delete": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Remover subscriptción",
+        "description": "Remueve una subscripción de un vuelo determinado. Se requiere token de autorización con permisos de empleado.",
+        "operationId": "deleteSubscription",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "flightId",
+            "in": "path",
+            "description": "ID del vuelo",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID de la subscriptción",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Los campos no son ids o no resuelven los objetos correspondientes."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token"
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/flights/baggage/:{flightId}": {
+      "get": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Listar equipajes de un vuelo",
+        "description": "Lista todos los equipajes de un vuelo determinado. Se requiere token de autorización con permisos de empleado.",
+        "operationId": "getBaggages",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "flightId",
+            "in": "path",
+            "description": "Id del vuelo",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Baggage"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. El campo no es un id o no resuelve un vuelo."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    },
+    "/flights/baggage": {
+      "post": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Agregar equipaje a un vuelo",
+        "description": "Agrega equipaje a un vuelo. Se requiere token de autorización.",
+        "operationId": "createBaggage",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "Id del vuelo y peso del equipaje (opcional)",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "flightId": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created."
+          },
+          "400": {
+            "description": "Bad Request. Falta el campo flightId, no es un id o no resuelve ningún vuelo"
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token."
+          }
+        }
+      }
+    },
+    "/flights/baggage/:{flightId}/:{id}": {
+      "delete": {
+        "tags": [
+          "flights"
+        ],
+        "summary": "Remover equipaje",
+        "description": "Remueve el equipaje de un vuelo determinado. Se requiere token de autorización con permisos de empleado.",
+        "operationId": "deleteBaggage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "token de autorización",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "flightId",
+            "in": "path",
+            "description": "ID del vuelo",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID del equipaje",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK."
+          },
+          "400": {
+            "description": "Bad Request. Los campos no son ids o no resuelven los objetos correspondientes."
+          },
+          "401": {
+            "description": "Unauthorized. No cuentas con el token"
+          },
+          "403": {
+            "description": "Forbidden. Cuentas con el token, pero no con los permisos."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DecodeToken": {
+      "type": "object",
+      "properties": {
+        "sub": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string",
+          "description": "permissions",
+          "enum": [
+            "admin",
+            "employee",
+            "customer"
+          ]
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string",
+          "description": "permissions",
+          "enum": [
+            "admin",
+            "employee",
+            "customer"
+          ]
+        }
+      }
+    },
+    "Airport": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "airline": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "aircrafts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Aircraft"
+          }
+        },
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    },
+    "Aircraft": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "base_cost_per_seat": {
+          "type": "number"
+        },
+        "seats": {
+          "type": "number"
+        }
+      }
+    },
+    "Flight": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "aircraft": {
+          "$ref": "#/definitions/Aircraft"
+        },
+        "departing": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "returning": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "_from_id": {
+          "type": "string"
+        },
+        "_to_id": {
+          "type": "string"
+        },
+        "_subscriptions_id": {
+          "type": "string"
+        },
+        "_baggages_id": {
+          "type": "string"
+        }
+      }
+    },
+    "Ticket": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "_owner_id": {
+          "type": "string"
+        },
+        "cost": {
+          "type": "number"
+        },
+        "seat": {
+          "type": "number"
+        }
+      }
+    },
+    "Baggage": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "_owner_id": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

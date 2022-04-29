@@ -16,7 +16,7 @@ class AirportService {
             await this.db.createAirport({
                 name: 'default main',
                 main: true,
-                airlane: 'default aeroline',
+                airline: 'default aeroline',
                 aircrafts: [],
                 latitude: 0,
                 longitude: 0
@@ -27,7 +27,7 @@ class AirportService {
     async create(data: createAirportParams) {
         await this.db.createAirport({
             name: data.name,
-            airlane: data.airline,
+            airline: data.airline,
             latitude: data.latitude,
             longitude: data.longitude,
             aircrafts: [],
