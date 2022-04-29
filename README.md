@@ -17,7 +17,7 @@ Para producción:
 `docker build -t av-prod -f docker-images/prod.Dockerfile .`
 
 #### Producción
-Ahora, si decidió iniciar el proyecto en modo producción, sólo deberá agregar un su archivo enviroment `.env` como en el ejemplo del repositorio `.env-example` sin tocar la variable `MONGO_URL`. Si desea desactivar el seeder iguale la variable `SEEDER` a 0. 
+Ahora, si decidió iniciar el proyecto en modo producción, sólo deberá agregar su archivo enviroment `.env` como en el ejemplo del repositorio `.env-example` sin tocar la variable `MONGO_URL`. Si desea desactivar el seeder iguale la variable `SEEDER` a 0. 
 
 Despues ejecutar:
 
@@ -37,7 +37,6 @@ E igualmente ejecutar:
 
 `docker-compose --env-file .env up`
 
-``
 Y listo, ahora tiene la aplicación  en su maquina en el puerto que configuró.
 
 ---
